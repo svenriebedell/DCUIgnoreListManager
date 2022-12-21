@@ -1,8 +1,49 @@
+<#
+_author_ = Sven Riebe <sven_riebe@Dell.com>
+_twitter_ = @SvenRiebe
+_version_ = 1.0.0
+_Dev_Status_ = Test
+Copyright © 2022 Dell Inc. or its subsidiaries. All Rights Reserved.
+
+No implied support and test in test environment/device before using in any production environment.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+#>
+
+<#Version Changes
+
+1.0.0   inital version
+
+
+Knowing Issues
+
+
+#>
+
+<#
+.Synopsis
+    This PowerShell starting the Dell Command | Update to identify missing Drivers. After collecting missing drivers reading the Release Date of each driver and compare it with the planned days of delayed deployment (UpdateRings). If a driver is to new for deployment based on your policy the driver will blocked for update. Next time you will run an update with Dell Command | Update this drivers will be ignored.
+    IMPORTANT: This script does not reboot the system to apply or query system.
+    IMPORTANT: Dell Command | Update need to install first on the devices.
+
+.DESCRIPTION
+   PowerShell helping to use different Updates Rings with Dell Command | Update. You can configure up to 8 different Rings. This script need to run each time if a new Update Catalog is availible to update the Blocklist as well.
+   
+#>
 
 ################################################################
-###  Variables                                               ###
+###  Variables Section                                       ###
 ################################################################
 
+# Deffintion of your Update Rings based on Severity Level. Numbers are days.
 $RingPolicy = @(
     [PSCustomObject]@{Name="Ring0"; Critical=7; Recommended=14; Optional=60}
     [PSCustomObject]@{Name="Ring1"; Critical=14; Recommended=21; Optional=120}
@@ -13,12 +54,13 @@ $RingPolicy = @(
     [PSCustomObject]@{Name="Ring6"; Critical=49; Recommended=56; Optional=180}
     [PSCustomObject]@{Name="Ring7"; Critical=56; Recommended=63; Optional=180}
 )
-
+# This Variable allows you to block specific drivers by match code, e.g. you have on driver you can not deselect by Category or Type without blocking need drivers as well.
 $Blacklist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
     [PSCustomObject]@{MatchCode="Dell*Monitor*"; Listed="19/12/2022"}
 )
 
+# You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
 $UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
 
 ## Do not change ##
@@ -158,6 +200,8 @@ function Get-DCU-TimeFilter
             }         
 
     }
+
+# Collect list of existing Drivers on Driver Ignorelist from the registry
 function get-DCU-Ignorelist 
     {
 
@@ -165,6 +209,7 @@ function get-DCU-Ignorelist
 
     }
 
+# Get Update Ring information form the Excel File
 function get-UpdateRing 
     {
     param 
@@ -178,7 +223,7 @@ function get-UpdateRing
 
     }
 
-
+# Generate final list of all not allowed driver for a DCU Deployment
 function Get-FinalBlockingList
     {
     
@@ -205,6 +250,7 @@ function Get-FinalBlockingList
 
     }
 
+# Generate new registry value for Ignorelist
 function Get-RegistryValue 
     {
     
@@ -245,17 +291,34 @@ if (Get-DCU-Installed - eq $true)
         [Array]$FinalBlockingList = Get-FinalBlockingList
         [Array]$RegValue = Get-RegistryValue
         $RegValueJSON = $RegValue | ConvertTo-Json -Compress
+        $IgnoreListCurrentJSON = $IgnoreListCurrent | ConvertTo-Json -Compress
 
         # Set blocking list to registry
         Set-ItemProperty -path $IgnoreListPath -Name $IgnoreListValue -Value $RegValueJSON -Force
 
+        # Log results of old Registry Value and New Registry Value
+        # Generate LogName and Source
+        New-EventLog -LogName 'Dell' -Source 'DCUOldList' -ErrorAction Ignore
+        New-EventLog -LogName 'Dell' -Source 'DCUBlacklist' -ErrorAction Ignore
+
+        # writting blocklists (Old/New) to Microsoft Event if value not empty
+        If($null -ne $IgnoreListCurrentJSON)
+            {
+                Write-EventLog -LogName Dell -Source DCUOldList -EntryType Information -EventId 0 -Message $IgnoreListCurrentJSON -ErrorAction SilentlyContinue
+            }
+       
+        If ($null -ne $RegValueJSON)
+            {
+                Write-EventLog -LogName Dell -Source DCUBlacklist -EntryType Information -EventId 0 -Message $RegValueJSON -ErrorAction SilentlyContinue
+            }
+        
         ## Service need to restart to read the new registry value
         Restart-Service -Name DellClientManagementService -Force
         
     }
 else 
     {
-    
+        # Close script if no DCU is installed on a machine
         Exit 2
 
     }
