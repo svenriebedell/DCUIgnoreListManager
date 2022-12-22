@@ -1,7 +1,7 @@
 <#
 _author_ = Sven Riebe <sven_riebe@Dell.com>
 _twitter_ = @SvenRiebe
-_version_ = 1.0.0
+_version_ = 1.0.1
 _Dev_Status_ = Test
 Copyright © 2022 Dell Inc. or its subsidiaries. All Rights Reserved.
 
@@ -21,9 +21,12 @@ limitations under the License.
 <#Version Changes
 
 1.0.0   inital version
+1.0.1   Clean the registry value before DCU scan starts.
+        Blocked drivers are now written as success in the registry value so that the value is not deleted again the next day by dcu. 
 
 
 Knowing Issues
+    - Dell Command | Update make a clean of registy on a regular base. This script need to be run on regluar base as well to cover this otherwise drivers could be deployed which normally are blocked.
 
 
 #>
@@ -263,8 +266,8 @@ function Get-RegistryValue
 
                 $TempArray | Add-Member NoteProperty -Name AttemptsCompleted -Value 1
                 $TempArray | Add-Member NoteProperty -Name Id -Value $Block.DriverID
-                $TempArray | Add-Member NoteProperty -Name IsSuccessful -Value $false
-                $TempArray | Add-Member NoteProperty -Name ReturnCode -Value 1
+                $TempArray | Add-Member NoteProperty -Name IsSuccessful -Value $true
+                $TempArray | Add-Member NoteProperty -Name ReturnCode -Value 0
                 $TempArray | Add-Member NoteProperty -Name Timer -Value $DateCurrent
 
                 $TempArray
@@ -283,12 +286,31 @@ function Get-RegistryValue
 
 if (Get-DCU-Installed - eq $true) 
     {
-        $DriverAllMissing = Get-MissingDriver
+        # Assessment get latest Ignorelist from the registry
         [Array]$IgnoreListCurrent = get-DCU-Ignorelist
-        [Array]$BlacklistDriver = remove-DCU-BlacklistDriver
+
+        # cleanup registry value before start DCU scan to get all drivers who need updated
+        Set-ItemProperty -path $IgnoreListPath -Name $IgnoreListValue -Value "" -Force
+
+        ## Service need to restart to read the new registry value
+        restart-Service -Name DellClientManagementService -Force
+        
+        # Assessment drivers get all missing drivers for this device
+        $DriverAllMissing = Get-MissingDriver
+        
+        # get information of Update-Ring for this device from a central stored excel sheet
         [Array]$RingUpdate = get-UpdateRing -DeviceName $Device
+
+        # get drivers who are match to the Blacklisted driver matchcode in $Blacklist
+        [Array]$BlacklistDriver = remove-DCU-BlacklistDriver
+        
+        # get a list of drivers who are missing on the device but based on update ring the drivers are newer than update policy allows
         [Array]$TimerList = Get-DCU-TimeFilter -DriverRing $RingUpdate[1]
+        
+        # Merge the lists filter by update timer and blacklist match code to one list.
         [Array]$FinalBlockingList = Get-FinalBlockingList
+        
+        # prepare JSON value for new and old ignore list
         [Array]$RegValue = Get-RegistryValue
         $RegValueJSON = $RegValue | ConvertTo-Json -Compress
         $IgnoreListCurrentJSON = $IgnoreListCurrent | ConvertTo-Json -Compress
@@ -299,25 +321,37 @@ if (Get-DCU-Installed - eq $true)
         # Log results of old Registry Value and New Registry Value
         # Generate LogName and Source
         New-EventLog -LogName 'Dell' -Source 'DCUOldList' -ErrorAction Ignore
-        New-EventLog -LogName 'Dell' -Source 'DCUBlacklist' -ErrorAction Ignore
+        New-EventLog -LogName 'Dell' -Source 'DCUBlocklist' -ErrorAction Ignore
+        New-EventLog -LogName 'Dell' -Source 'DCUBlocklistScriptResult' -ErrorAction Ignore
 
         # writting blocklists (Old/New) to Microsoft Event if value not empty
         If($null -ne $IgnoreListCurrentJSON)
             {
+                # Save value of old registry entry to Microsoft Event
                 Write-EventLog -LogName Dell -Source DCUOldList -EntryType Information -EventId 0 -Message $IgnoreListCurrentJSON -ErrorAction SilentlyContinue
             }
        
         If ($null -ne $RegValueJSON)
             {
-                Write-EventLog -LogName Dell -Source DCUBlacklist -EntryType Information -EventId 0 -Message $RegValueJSON -ErrorAction SilentlyContinue
+                # Save value of new registry entry to Microsoft Event
+                Write-EventLog -LogName Dell -Source DCUBlocklist -EntryType Information -EventId 0 -Message $RegValueJSON -ErrorAction SilentlyContinue
             }
         
+        # Write success to event log registry is set new
+        Write-EventLog -LogName Dell -Source DCUBlocklistScriptResult -EntryType SuccessAudit -EventId 0 -Message "Script was run and set new registry value to this machine" -ErrorAction SilentlyContinue
+        
         ## Service need to restart to read the new registry value
-        Restart-Service -Name DellClientManagementService -Force
+        restart-Service -Name DellClientManagementService -Force
+
+        # Close script
+        exit 0
         
     }
 else 
     {
+        # Write failure to event log because DCU is not installed on this machine
+        Write-EventLog -LogName Dell -Source DCUBlocklistScriptResult -EntryType Error -EventId 2 -Message "DCU Blocklist Script could not run because no DCU is installed on this machine" -ErrorAction SilentlyContinue
+        
         # Close script if no DCU is installed on a machine
         Exit 2
 
