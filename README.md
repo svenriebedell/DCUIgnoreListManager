@@ -26,11 +26,14 @@ Result: driver can installed earliest at the 12/28/2022
 Logging will store the following informations in Microsoft Event
 
 **Existing Reg-Value**
+
 <img width="716" alt="Screenshot 2022-12-22 151518" src="https://user-images.githubusercontent.com/99394991/209154057-5a4492ee-7282-4f77-88e1-4134ef094980.png">
 
 **Blocked Driver**
+
 <img width="708" alt="Screenshot 2022-12-22 151550" src="https://user-images.githubusercontent.com/99394991/209154066-4e167fa6-5d0d-41ce-8ec5-01531338d35f.png">
 
 **Script runs results**
+
 <img width="721" alt="Screenshot 2022-12-22 151608" src="https://user-images.githubusercontent.com/99394991/209154072-9f18707d-3c6e-40bd-92d9-4eb62e784cab.png">
 
