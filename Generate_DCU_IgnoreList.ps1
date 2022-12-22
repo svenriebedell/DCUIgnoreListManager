@@ -320,7 +320,7 @@ if (Get-DCU-Installed - eq $true)
 
         # Log results of old Registry Value and New Registry Value
         # Generate LogName and Source
-        New-EventLog -LogName 'Dell' -Source 'DCUOldList' -ErrorAction Ignore
+        New-EventLog -LogName 'Dell' -Source 'DCURegValue' -ErrorAction Ignore
         New-EventLog -LogName 'Dell' -Source 'DCUBlocklist' -ErrorAction Ignore
         New-EventLog -LogName 'Dell' -Source 'DCUBlocklistScriptResult' -ErrorAction Ignore
 
@@ -328,7 +328,7 @@ if (Get-DCU-Installed - eq $true)
         If($null -ne $IgnoreListCurrentJSON)
             {
                 # Save value of old registry entry to Microsoft Event
-                Write-EventLog -LogName Dell -Source DCUOldList -EntryType Information -EventId 0 -Message $IgnoreListCurrentJSON -ErrorAction SilentlyContinue
+                Write-EventLog -LogName Dell -Source DCURegValue -EntryType Information -EventId 0 -Message $IgnoreListCurrentJSON -ErrorAction SilentlyContinue
             }
        
         If ($null -ne $RegValueJSON)
