@@ -1,4 +1,4 @@
-# Dell Command | Update - Ignorelist generator
+# Dell Command | Update - Ignorelist Manager
 
 ### Changelog:
 - 1.0.1  First public version
