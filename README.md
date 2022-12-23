@@ -5,8 +5,8 @@
 
 ## Description
 Dell Command | Update allows you to maintain your device updates automatically. You can define severity levels, time of starting updates and filtering on driver category and driver type.
-If you want to exclude specific drivers, you can use the Dell Cloud Repository Manager which allows you to manage your own update catalogs. You can define with approach as whitelisting, only admin approve driver will be deployed by Dell Command | Update. 
-This concept is based on an excel sheet to managing update rings (from 1 to 8) and PowerShell script we give you the approach of a Blacklist concept. Every time you run this script it is filtering drivers by Release Date or Driver Name. 
+If you want to exclude specific drivers, you can use the Dell Custom Update Catalog which allows you to manage your own update catalogs. You can define with approach as whitelisting, only admin approve driver will be deployed by Dell Command | Update. 
+This concept is based on an excel sheet to managing update rings (from 1 to 8) and PowerShell script we give you the approach of a Ignore-List concept. Every time you run this script it is filtering drivers by Release Date or Driver Name. 
 
 **Important:** This script need to be run each time if Dell update the DCU catalog otherwise it could be not all driver you do not want to deploy are blocked.
 
@@ -31,7 +31,7 @@ You can choose up to 8 different settings (Ring0 to Ring7). Each fo this update 
 ![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
 
 ### Block driver based on name
-In case you want to exclude some drivers/applications in general you have an option to blacklist these installers. Please choose a match code which only affected the required driver/application, or it could impact other drivers. 
+In case you want to exclude some drivers/applications in general you have an option to irgnore these installers. Please choose a match code which only affected the required driver/application, or it could impact other drivers. 
 
 ![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
 
