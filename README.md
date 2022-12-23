@@ -50,34 +50,39 @@ The script needs to run before a Dell Command | Update will be run otherwise the
 
 The script can be used manually (Administrator rights needed) but an automation is recommended by Time scheduler or Software Management solution 
 
+### How it looks before the script has run
+
+![Snag_bbb928d](https://user-images.githubusercontent.com/99394991/209169501-37c2838f-0234-4f51-8f17-b8fa938fc732.png)
+
+### Running the script to maintain the Irgnore List
+
+![Snag_bbb9193](https://user-images.githubusercontent.com/99394991/209169561-4347759d-e476-46e4-b687-f024dd4d749f.png)
+
+### Dell Command | Update scan after the script runs.
+
+![Snag_bbb90c7](https://user-images.githubusercontent.com/99394991/209169591-5c20cc9f-e86e-4e2d-9a32-e412341b31dd.png)
+
+
+
 
 ## Logging
 Logging will store the following information's in Microsoft Event 
 
-**Existing Reg-Value**
+### Backup of the existing registry value
 
 <img width="716" alt="Screenshot 2022-12-22 151518" src="https://user-images.githubusercontent.com/99394991/209154057-5a4492ee-7282-4f77-88e1-4134ef094980.png">
 
-**Blocked Driver**
+### New registry value set on machine
 
 <img width="708" alt="Screenshot 2022-12-22 151550" src="https://user-images.githubusercontent.com/99394991/209154066-4e167fa6-5d0d-41ce-8ec5-01531338d35f.png">
 
-**Script runs results**
+### Run success of the script
 
 <img width="721" alt="Screenshot 2022-12-22 151608" src="https://user-images.githubusercontent.com/99394991/209154072-9f18707d-3c6e-40bd-92d9-4eb62e784cab.png">
 
-### Backup of the existing registry value
 
-![Snag_bbb928d](https://user-images.githubusercontent.com/99394991/209169501-37c2838f-0234-4f51-8f17-b8fa938fc732.png)
 
-### New registry value set on machine
-
-![Snag_bbb9193](https://user-images.githubusercontent.com/99394991/209169561-4347759d-e476-46e4-b687-f024dd4d749f.png)
-
-### Run success of the script
-
-![Snag_bbb90c7](https://user-images.githubusercontent.com/99394991/209169591-5c20cc9f-e86e-4e2d-9a32-e412341b31dd.png)
-
+## Next steps
 
 In the next step I will integrate this information into my Dell Command | Update Dashboard for Log Analytics. You can find this project here.
 
