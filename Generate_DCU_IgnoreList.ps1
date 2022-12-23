@@ -58,7 +58,7 @@ $RingPolicy = @(
     [PSCustomObject]@{Name="Ring7"; Critical=56; Recommended=63; Optional=180}
 )
 # This Variable allows you to block specific drivers by match code, e.g. you have on driver you can not deselect by Category or Type without blocking need drivers as well.
-$Blacklist = @(
+$Matchcodelist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
     [PSCustomObject]@{MatchCode="Dell*Monitor*"; Listed="19/12/2022"}
 )
@@ -148,14 +148,14 @@ function Get-DCU-Installed
     
     }
 
-# Select Driver based on DCU Scan where Blacklist Matchcode do not allow an update by DCU in general
-function remove-DCU-BlacklistDriver 
+# Select Driver based on DCU Scan where ignore Matchcode do not allow an update by DCU in general
+function remove-DCU-MatchcodelistDriver 
     {
 
-        ForEach ($black in $Blacklist)
+        ForEach ($match in $Matchcodelist)
             {
 
-                $DriverAllMissing | Where-Object Name -like $Black.matchcode
+                $DriverAllMissing | Where-Object Name -like $Match.matchcode
 
             }
             
@@ -237,15 +237,15 @@ function Get-FinalBlockingList
 
 
     
-        foreach ($Black in $BlacklistDriver)
+        foreach ($Match in $MatchcodelistDriver)
             {
                 
                 $TimerList
 
-                If($TimerList.DriverID -notcontains $Black.DriverID)
+                If($TimerList.DriverID -notcontains $Match.DriverID)
                     {
 
-                        $Black
+                        $Match
                         
                     }
 
@@ -256,9 +256,7 @@ function Get-FinalBlockingList
 # Generate new registry value for Ignorelist
 function Get-RegistryValue 
     {
-    
-        
-        
+           
         foreach ($Block in $FinalBlockingList)
             {
 
@@ -301,13 +299,13 @@ if (Get-DCU-Installed - eq $true)
         # get information of Update-Ring for this device from a central stored excel sheet
         [Array]$RingUpdate = get-UpdateRing -DeviceName $Device
 
-        # get drivers who are match to the Blacklisted driver matchcode in $Blacklist
-        [Array]$BlacklistDriver = remove-DCU-BlacklistDriver
+        # get drivers who are match to the match code listed driver in $Matchcodelist
+        [Array]$MatchcodelistDriver = remove-DCU-MatchcodelistDriver
         
         # get a list of drivers who are missing on the device but based on update ring the drivers are newer than update policy allows
         [Array]$TimerList = Get-DCU-TimeFilter -DriverRing $RingUpdate[1]
         
-        # Merge the lists filter by update timer and blacklist match code to one list.
+        # Merge the lists filter by update timer and matchcodelist match code to one list.
         [Array]$FinalBlockingList = Get-FinalBlockingList
         
         # prepare JSON value for new and old ignore list
