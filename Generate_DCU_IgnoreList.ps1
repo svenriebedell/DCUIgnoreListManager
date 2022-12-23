@@ -64,7 +64,7 @@ $Blacklist = @(
 )
 
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
+$UpdateRing = 'https://[your storage path]/DellDeviceConfiguration.xlsx'
 
 ## Do not change ##
 $DCUProgramName = ".\dcu-cli.exe"
