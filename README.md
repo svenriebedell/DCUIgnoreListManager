@@ -44,6 +44,8 @@ The assignment of a device to update ring will be managed by an excle sheet file
 The assignment of a device to update ring will be managed by an excel sheet file. In my environment I am using a Azure Blob Storge but it could be as well Fileserver, OneDrive, etc. only requirement the file need to be accessible for the script. 
 
 ![image](https://user-images.githubusercontent.com/99394991/209309693-f8ac9d34-3677-4d26-90e7-c071797c68a8.png)
+![image](https://user-images.githubusercontent.com/99394991/209318844-6055c0c8-90df-4bf5-9139-5f0ab8c760db.png)
+
 
 ## Execution of script
 The script needs to run before a Dell Command | Update will be run otherwise the list is not maintained. The catalog will be updated in 14 days by dell so 1 time per week or 1 time every two weeks is enough. You can run it daily, but it is not needed. 
