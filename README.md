@@ -23,9 +23,17 @@ Result: driver can installed earliest at the 12/28/2022
 
 ## Configuration option of script
 
+### Ring definition
 You can choose up to 8 different settings (Ring0 to Ring7). Each fo this update ring allows to have 3 different update times based on severity levels. If you need less update rings you can ignore this in the assignment file or delete the values here.
 
+
+### Block driver on names
+In case you want to exculde some drivers/applications in generall you have an option to blacklist these installers. Please, do you chosing a match code which only affected to the required driver/application otherwise it could have an impact to other drivers as well.
+
 ![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
+
+### Path of Assignment file
+The assignment of a device to update ring will be managed by an excle sheet file. In my environment I am using a Azure Blob Storge but it could be as well File-Server, Onedrive, etc. only requirment the file need to be accessable for the script.
 
 ![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
 
