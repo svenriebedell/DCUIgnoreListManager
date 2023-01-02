@@ -5,7 +5,7 @@
 
 ## Description
 Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g. audio or chipset, etc. or type of the update like BIOS or hardware driver. Furthermore, the severity of a filter can be selected, e.g. Recommended or Critical. 
-However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the Dell Custom Update Catalog, where you can select everything as you want it and then use this catalog for the updates.For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update. 
+However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update. 
 This experimental project tries to extend the function of the filter. There is the possibility to use so-called update rings for different update groups. Background is an update ring defines how long a driver must be released to be distributed. So we have here the filtering on driver age.
 For control we use an Excel sheet which is stored centrally in the cloud or on-premise. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN, network or Internet from the devices. We support up to 8 different update rings here.
 
@@ -37,7 +37,7 @@ There are cases where it is not possible to filter out certain drivers by Type, 
 ![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
 
 ### Path of Assignment file
-You should set the path where the file DellDeviceConfiguration.xlsx will be saved. For my environment I use an Azure storage for this, but you can also use FileShares or e.g. OneDrive's, etc. here. The only important thing is that the device has access to the file.
+You should set the path where the file **DellDeviceConfiguration.xlsx** will be saved. For my environment I use an Azure storage for this, but you can also use FileShares or e.g. OneDrive's, etc. here. The only important thing is that the device has access to the file.
 
 ![image](https://user-images.githubusercontent.com/99394991/209308621-c661aa19-dcf8-4771-a2f9-963f1c7acde6.png)
 
