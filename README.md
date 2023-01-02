@@ -1,18 +1,18 @@
-# Dell Command | Update - Ignorelist Manager
+# Dell Command | Update - Ignore List Manager
 
 ### Changelog:
-- 1.0.1  First public version
+- 1.0.1 First public version
 
 ## Description
-Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g. audio or chipset, etc. or type of the update like BIOS or hardware driver. Furthermore, the severity of a filter can be selected, e.g. Recommended or Critical. 
+Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g., audio or chipset, etc. or type of the update like BIOS (Basic Input Output System) or hardware driver. Furthermore, the severity of a filter can be selected, e.g., Recommended or Critical. 
 However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update. 
-This experimental project tries to extend the function of the filter. There is the possibility to use so-called update rings for different update groups. Background is an update ring defines how long a driver must be released to be distributed. So we have here the filtering on driver age.
-For control we use an Excel sheet which is stored centrally in the cloud or on-premise. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN, network or Internet from the devices. We support up to 8 different update rings here.
+This experimental project tries to extend the function of the filter. There is the possibility to use so-called update rings for different update groups. Background is an update ring defines how long a driver must be released to be distributed. So, we have here the filtering on driver age.
+For control we use an Excel sheet which is stored centrally in the cloud or on-premises. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN (Virtual Private Network), network or Internet from the devices. We support up to 8 different update rings here.
 
 **Important:** It must be ensured that this script is always started on the device before a Dell Command | Update. Otherwise, unscheduled updates may be performed on the device. The Dell Update Catalog is currently updated weekly, so the script should also run at least once a week.
 
 ### Princip of working
-The script uses the scan function of the Dell Command | Update to identify missing drivers. The missing drivers are then filtered by update rings and a general block list. The remaining drivers can then be updated on the devices via Dell Command | Update. The others are temporarily stored on an IgnoreList and are ignored in the distribution. To set the correct update ring for the device, the script reads the information in the central Excel sheet and get values for different severity levels, e.g., Ring0 Critical=7days; Recommended=14days; Optional=60days. 
+The script uses the scan function of the Dell Command | Update to identify missing drivers. The missing drivers are then filtered by update rings and a general block list. The remaining drivers can then be updated on the devices via Dell Command | Update. The others are temporarily stored on an Ignore List and are ignored in the distribution. To set the correct update ring for the device, the script reads the information in the central Excel sheet and get values for different severity levels, e.g., Ring0 Critical=7days; Recommended=14days (about 2 weeks); Optional=60days (about 2 months). 
 
 
 **Example:**
@@ -32,12 +32,12 @@ There is a possibility to set up to 8 different update rings (Ring0 to Ring7) fo
 ![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
 
 ### Block driver based on name
-There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should generally never be installed, e.g. certain applications or certain drivers. Here there is the possibility to filter these via matchcodes from the open updates so that they are not installed. Please **test/check** the matchcode carefully in advance, so that it does not affect the required/desired drivers later. 
+There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should never be installed, e.g., certain applications or certain drivers. Here there is the possibility to filter these via match codes from the open updates so that they are not installed. Please **test/check** the match code carefully in advance, so that it does not affect the required/desired drivers later. 
 
 ![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
 
 ### Path of Assignment file
-You should set the path where the file **DellDeviceConfiguration.xlsx** will be saved. For my environment I use an Azure storage for this, but you can also use FileShares or e.g. OneDrive's, etc. here. The only important thing is that the device has access to the file.
+You should set the path where the file **DellDeviceConfiguration.xlsx** will be saved. For my environment I use Azure storage for this, but you can also use File Shares or e.g., OneDrive's, etc. here. The only important thing is that the device has access to the file.
 
 ![image](https://user-images.githubusercontent.com/99394991/209308621-c661aa19-dcf8-4771-a2f9-963f1c7acde6.png)
 
@@ -51,9 +51,9 @@ In the file DellDeviceConfiguration.xlsx the assignment of the device name to th
 
 
 ## Execution of script
-In order to ensure that the blocked drivers are also entered on the ignore list, the script must always be run before the update with Dell Command | Update. Otherwise, drivers may be installed on the device before the update policy. 
+To ensure that the blocked drivers are also entered on the ignore list, the script must always be run before the update with Dell Command | Update. Otherwise, drivers may be installed on the device before the update policy. 
 
-The script can be started manually or it is recommended to start it regularly using tools with scheduler or other solutions. 
+The script can be started manually, or it is recommended to start it using tools with scheduler or other solutions. 
 
 ### How it looks before the script has run
 
