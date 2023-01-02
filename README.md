@@ -24,33 +24,35 @@ Result: driver can be installed earliest at the 12/28/2022
 **Legal disclaimer: THE INFORMATION IN THIS PUBLICATION IS PROVIDED 'AS-IS.' DELL MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND WITH RESPECT TO THE INFORMATION IN THIS PUBLICATION, AND SPECIFICALLY DISCLAIMS IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.** In no event shall Dell Technologies, its affiliates or suppliers, be liable for any damages whatsoever arising from or related to the information contained herein or actions that you decide to take based thereon, including any direct, indirect, incidental, consequential, loss of business profits or special damages, even if Dell Technologies, its affiliates or suppliers have been advised of the possibility of such damages. 
 
 ## Configuration option of script
+You can make some adjustments in the script to adapt it to your needs.
 
 ### Ring definition
-You can choose up to 8 different settings (Ring0 to Ring7). Each fo this update ring allows to have 3 different update times based on severity levels. If you need less update rings you can ignore this in the assignment file or delete the values here.
+There is a possibility to set up to 8 different update rings (Ring0 to Ring7) for the drivers. Each of these rings can be defined in three severity levels to ensure that urgent updates are handled differently than optional updates.
 
 ![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
 
 ### Block driver based on name
-In case you want to exclude some drivers/applications in general you have an option to irgnore these installers. Please choose a match code which only affected the required driver/application, or it could impact other drivers. 
+There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should generally never be installed, e.g. certain applications or certain drivers. Here there is the possibility to filter these via matchcodes from the open updates so that they are not installed. Please **test/check** the matchcode carefully in advance, so that it does not affect the required/desired drivers later. 
 
 ![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
 
 ### Path of Assignment file
-The assignment of a device to update ring will be managed by an excle sheet file. In my environment I am using a Azure Blob Storge but it could be as well File-Server, Onedrive, etc. only requirment the file need to be accessable for the script.
+You should set the path where the file DellDeviceConfiguration.xlsx will be saved. For my environment I use an Azure storage for this, but you can also use FileShares or e.g. OneDrive's, etc. here. The only important thing is that the device has access to the file.
 
 ![image](https://user-images.githubusercontent.com/99394991/209308621-c661aa19-dcf8-4771-a2f9-963f1c7acde6.png)
 
 ### Assignment file
-The assignment of a device to update ring will be managed by an excel sheet file. In my environment I am using a Azure Blob Storge but it could be as well Fileserver, OneDrive, etc. only requirement the file need to be accessible for the script. 
+In the file DellDeviceConfiguration.xlsx the assignment of the device name to the update ring is defined. The file must contain the required device names, otherwise the device has no assignment. 
+**Note:** in a later version there will be a default setting if the device name is not found.
 
 ![image](https://user-images.githubusercontent.com/99394991/209309693-f8ac9d34-3677-4d26-90e7-c071797c68a8.png)
 ![image](https://user-images.githubusercontent.com/99394991/209318844-6055c0c8-90df-4bf5-9139-5f0ab8c760db.png)
 
 
 ## Execution of script
-The script needs to run before a Dell Command | Update will be run otherwise the list is not maintained. The catalog will be updated in 14 days by dell so 1 time per week or 1 time every two weeks is enough. You can run it daily, but it is not needed. 
+In order to ensure that the blocked drivers are also entered on the ignore list, the script must always be run before the update with Dell Command | Update. Otherwise, drivers may be installed on the device before the update policy. 
 
-The script can be used manually (Administrator rights needed) but an automation is recommended by Time scheduler or Software Management solution 
+The script can be started manually or it is recommended to start it regularly using tools with scheduler or other solutions. 
 
 ### How it looks before the script has run
 
@@ -68,7 +70,7 @@ The script can be used manually (Administrator rights needed) but an automation 
 
 
 ## Logging
-Logging will store the following information's in Microsoft Event 
+The script saves the old and the new blocklist as an event in the Microsoft Event. This makes it easy to check changes or troubleshoot why certain updates did not run on the device.
 
 ### Backup of the existing registry value
 
