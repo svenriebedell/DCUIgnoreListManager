@@ -43,6 +43,7 @@ You should set the path where the file DellDeviceConfiguration.xlsx will be save
 
 ### Assignment file
 In the file DellDeviceConfiguration.xlsx the assignment of the device name to the update ring is defined. The file must contain the required device names, otherwise the device has no assignment. 
+
 **Note:** in a later version there will be a default setting if the device name is not found.
 
 ![image](https://user-images.githubusercontent.com/99394991/209309693-f8ac9d34-3677-4d26-90e7-c071797c68a8.png)
