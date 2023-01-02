@@ -15,7 +15,7 @@ For control we use an Excel sheet which is stored centrally in the cloud or on-p
 The script uses the scan function of the Dell Command | Update to identify missing drivers. The missing drivers are then filtered by update rings and a general block list. The remaining drivers can then be updated on the devices via Dell Command | Update. The others are temporarily stored on an IgnoreList and are ignored in the distribution. To set the correct update ring for the device, the script reads the information in the central Excel sheet and get values for different severity levels, e.g., Ring0 Critical=7days; Recommended=14days; Optional=60days. 
 
 
-##Example:##
+**Example:**
 Driver A: Release Date 12/21/2022
 Ring0 / Severity: Critical 7 days
 
