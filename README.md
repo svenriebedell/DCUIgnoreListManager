@@ -4,16 +4,16 @@
 - 1.0.1  First public version
 
 ## Description
-Dell Command | Update allows you to maintain your device updates automatically. You can define severity levels, time of starting updates and filtering on driver category and driver type.
-If you want to exclude specific drivers, you can use the Dell Custom Update Catalog which allows you to manage your own update catalogs. You can define with approach as selected driver deployment, only admin approve driver will be deployed by Dell Command | Update. 
-This concept is based on an excel sheet to managing update rings (from 1 to 8) and PowerShell script we give you the approach of a Ignore-List concept. Every time you run this script it is filtering drivers by Release Date or Driver Name. 
+Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g. audio or chipset, etc. or type of the update like BIOS or hardware driver. Furthermore, the severity of a filter can be selected, e.g. Recommended or Critical. 
+However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the Dell Custom Update Catalog, where you can select everything as you want it and then use this catalog for the updates.For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update. 
+This experimental project tries to extend the function of the filter. There is the possibility to use so-called update rings for different update groups. Background is an update ring defines how long a driver must be released to be distributed. So we have here the filtering on driver age.
+For control we use an Excel sheet which is stored centrally in the cloud or on-premise. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN, network or Internet from the devices. We support up to 8 different update rings here.
 
-**Important:** This script need to be run each time if Dell update the DCU catalog otherwise it could be not all driver you do not want to deploy are blocked.
+**Important:** It must be ensured that this script is always started on the device before a Dell Command | Update. Otherwise, unscheduled updates may be performed on the device. The Dell Update Catalog is currently updated weekly, so the script should also run at least once a week.
 
 ### Princip of working
-The script starting Dell Command | Update and scan for missing drivers. After the missing drivers are identified it checks the Release Date of each driver. 2nd step it checks based on the Excel sheet the assign Update Ring for each device and get values for different severity levels, e.g., Ring0 Critical=7days; Recommended=14days; Optional=60days. 
+The script uses the scan function of the Dell Command | Update to identify missing drivers. The missing drivers are then filtered by update rings and a general block list. The remaining drivers can then be updated on the devices via Dell Command | Update. The others are temporarily stored on an IgnoreList and are ignored in the distribution. To set the correct update ring for the device, the script reads the information in the central Excel sheet and get values for different severity levels, e.g., Ring0 Critical=7days; Recommended=14days; Optional=60days. 
 
-Now it adds the Ring Value to the release date. If the result is older than today, the drivers can deploy; if the result is newer, the driver will be blocked for a while. 
 
 ##Example:##
 Driver A: Release Date 12/21/2022
