@@ -86,7 +86,7 @@ The script can be started manually, or it is recommended to start it using tools
 
 
 ## Logging
-The script saves the old and the new blocklist as an event in the Microsoft Event. This makes it easy to check changes or troubleshoot why certain updates did not run on the device.
+The script saves the old and the new blocklist as an event in the Microsoft Event Viewer. This makes it easy to check changes or troubleshoot why certain updates did not run on the device.
 
 ### Backup of the existing registry value
 
