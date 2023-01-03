@@ -71,11 +71,14 @@ $DCUProgramName = ".\dcu-cli.exe"
 $DCUPath = (Get-CimInstance -ClassName Win32_Product -Filter "Name like '%Dell%Command%Update%'").InstallLocation
 $IgnoreListPath = "HKLM:\SOFTWARE\DELL\UpdateService\Service\IgnoreList"
 $IgnoreListValue = "InstalledUpdateJson"
-$DeviceSKU = (Get-CimInstance -ClassName Win32_ComputerSystem).SystemSKUNumber
-$catalogPath = $env:ProgramData+'\Dell\UpdateService\Temp'
+#$DeviceSKU = (Get-CimInstance -ClassName Win32_ComputerSystem).SystemSKUNumber
+#$catalogPath = $env:ProgramData+'\Dell\UpdateService\Temp'
 $DriverAllMissing = New-Object -TypeName psobject
 $DateCurrent = Get-Date
 $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty Name
+$Temp_Folder = "C:\Temp\"
+
+
 
 
 ################################################################
@@ -86,45 +89,42 @@ $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -Expan
 Function Get-MissingDriver
     {
 
-        Set-Location -Path $DCUPath
-        $DCUScanLog = & $DCUProgramName /scan
+        # Test if Temp Path is existing if not generate this Path
+        $check_Temp_Folder = Test-Path -Path $Temp_Folder
 
-        # Spliting text strings in single values in one array
-        $TempVariable = $DCUScanLog | Select-String ("--")
-        $TempVariable = $TempVariable -split ": "
-        $TempVariable = $TempVariable -split " -- "
-        $CountLines = $TempVariable.Count
-        $IndexCounter = 0
-
-        $CatalogFileName = Get-ChildItem $catalogPath | Where-Object Name -Like "*$DeviceSKU*xml" | Select-Object -ExpandProperty Name
-        [XML]$DeviceCatalog = Get-Content $catalogPath\$CatalogFileName
-
-
-                       
-        for ($i = 0; $i -lt $CountLines) 
+        if ($check_Temp_Folder -ne $true) 
             {
-            
-            # Temp Var to get XML Datas from Device Catalog
-            $TempXMLCatalog = ($DeviceCatalog.Manifest.SoftwareComponent)| Where-Object {$_.releaseid -like $TempVariable[0+$IndexCounter]}
-            $ReleaseDate = $TempXMLCatalog.ReleaseDate
-            
+                New-Item -Path $Temp_Folder -ItemType Directory
+            }
+
+        Set-Location -Path $DCUPath
+        # DCU scan only generate a XML report with missing drivers
+        & $DCUProgramName /scan -report="$Temp_Folder"
+
+        # Get Catalog file name of Scan Report
+        $ReportFileName = Get-ChildItem $Temp_Folder | Where-Object Name -Like "DCUApp*Update*xml" | Select-Object -ExpandProperty Name
+
+        # read XML File in a variable
+        [XML]$MissingDriver = Get-Content $Temp_Folder$ReportFileName 
+        
+        # transfer xml driver data´s to Variable Array                       
+        foreach ($item in $MissingDriver) 
+            {
+                        
             # build a temporary array
             $DriverArrayTemp = New-Object -TypeName psobject
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $TempVariable[0+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $TempVariable[1+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $TempVariable[2+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $TempVariable[3+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $ReleaseDate
-
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $item.updates.update.Release
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $item.updates.update.name
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $item.updates.update.urgency
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $item.updates.update.category
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $item.updates.update.date
             
+            # Return Array
             $DriverArrayTemp
-            
-            $IndexCounter += 4
-
-            $i = $i + 4
 
             }
         
+        # Set folder to root
         Set-Location \
 
     }
