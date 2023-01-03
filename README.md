@@ -49,7 +49,7 @@ There is a possibility to set up to 8 different update rings (Ring0 to Ring7) fo
 ### Block driver based on name
 There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should never be installed, e.g., certain applications or certain drivers. Here there is the possibility to filter these via match codes from the open updates so that they are not installed. Please **test/check** the match code carefully in advance, so that it does not affect the required/desired drivers later. 
 
-![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
+<img width="603" alt="2023-01-03_15-51-55" src="https://user-images.githubusercontent.com/99394991/210381965-5383f350-8ab5-40e5-8941-289d0a6eb3ef.png">
 
 ### Path of Assignment file
 For control we use an Excel sheet which is stored centrally in the cloud or on-premises. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN (Virtual Private Network), network or Internet from the devices.
