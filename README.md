@@ -43,7 +43,8 @@ You can make some adjustments in the script to adapt it to your needs.
 ### Ring definition
 There is a possibility to set up to 8 different update rings (Ring0 to Ring7) for the drivers. Each of these rings can be defined in three severity levels to ensure that urgent updates are handled differently than optional updates.
 
-![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
+<img width="677" alt="2023-01-03_15-47-18" src="https://user-images.githubusercontent.com/99394991/210381056-6afc5d12-dfe9-4414-acd2-fc217f9fc797.png">
+
 
 ### Block driver based on name
 There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should never be installed, e.g., certain applications or certain drivers. Here there is the possibility to filter these via match codes from the open updates so that they are not installed. Please **test/check** the match code carefully in advance, so that it does not affect the required/desired drivers later. 
