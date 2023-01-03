@@ -3,15 +3,10 @@
 ### Changelog:
 - 1.0.1 First public version
 
-## Description
-Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g., audio or chipset, etc. or type of the update like BIOS (Basic Input Output System) or hardware driver. Furthermore, the severity of a filter can be selected, e.g., Recommended or Critical. 
-However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update.
-One of the biggest challenges today is to patch hardware and software in a way that does not affect the stability of the device. That is why many customers today try a so-called ring deployment of updates. Due to the considerable number  of different installations and devices, however, this is a problem to control in management.
-This experimental project tries to realize this by means of Dell Command | Update.
-Dell Command | Update already offers a variety of control options for update filtering, update frequency, BIOS authentication, etc. 
-What is currently not yet available is to install drivers that are available according to the update catalog for a device only at a certain point in time. You can create groups via different configuration settings to realize a test group, but then everything is always installed in these groups unless it is filtered, or you work with custom catalogs. This project tries to map a concept in the form of rings and severity levels so that all devices have the same update policy but in advance it is determined which drivers should not be installed during an update although an update is available.
-This allows to define up to 8 different update rings which in turn have 3 different severity levels, so that you can define different update delays for Critical, Recommended and Optional drivers.
-The script uses the features provided by Dell Command | Update out of the box. It uses the update scan to identify missing drivers on a device. Then it uses the device update catalog to see when the driver was released. A policy file is used to determine what the update ring policy is for this device. If the driver is allowed to be installed by policy, nothing happens and the Dell Command | Update will update this driver/firmware when starting the update process. If the policy does not allow an update, then this driver is taken on the Ignore list of the Dell Command | Update and this is ignored during the update.
+## Introduction
+This experimental project aims to add Ring Deployment capabilities to Dell Command Update (DCU), by using an Ignore List Manager script.  
+
+In a nutshell this solution scans for available updates and uses the information provided to read out the release date of the updates. Based on the release date and your ring deployment policy settings (Severity level & Days) it will assign the updates to a specific update ring. DCU will only process the updates that match a certain update ring.
 
 **Example:**
 Driver A: Release Date 12/21/2022
@@ -19,11 +14,28 @@ Ring0 / Severity: Critical 7 days
 
 Result: driver can be installed earliest at the 12/28/2022 
 
+## Description
+Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g., audio or chipset, etc. or type of the update like BIOS (Basic Input Output System) or hardware driver. Furthermore, the severity of a filter can be selected, e.g., Recommended or Critical.
+
+However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update.
+
+One of the biggest challenges today is to patch hardware and software in a way that does not affect the stability of the device. That is why many customers today try a so-called ring deployment of updates. Due to the considerable number  of different installations and devices, however, this is a problem to control in management.
+
+This experimental project tries to realize this by means of Dell Command | Update.
+Dell Command | Update already offers a variety of control options for update filtering, update frequency, BIOS authentication, etc.
+
+What is currently not yet available is to install drivers that are available according to the update catalog for a device only at a certain point in time. You can create groups via different configuration settings to realize a test group, but then everything is always installed in these groups unless it is filtered, or you work with custom catalogs. This project tries to map a concept in the form of rings and severity levels so that all devices have the same update policy but in advance it is determined which drivers should not be installed during an update although an update is available.
+This allows to define up to 8 different update rings which in turn have 3 different severity levels, so that you can define different update delays for Critical, Recommended and Optional drivers.
+
+The script uses the features provided by Dell Command | Update out of the box. It uses the update scan to identify missing drivers on a device. Then it uses the device update catalog to see when the driver was released. A policy file is used to determine what the update ring policy is for this device. If the driver is allowed to be installed by policy, nothing happens and the Dell Command | Update will update this driver/firmware when starting the update process. If the policy does not allow an update, then this driver is taken on the Ignore list of the Dell Command | Update and this is ignored during the update.
+
 The function is currently external only via this script i.e. to update the Ignore List for drivers this script must be started at regular intervals at least before each update by gangs with Dell Command | Update so that no unwanted drivers are installed or once blocked drivers that are now allowed by policy to be installed by the next Dell Command | Update process are updated.
 
 **Important:** It must be ensured that this script is always started on the device before a Dell Command | Update. Otherwise, unscheduled updates may be performed on the device. The Dell Update Catalog is currently updated weekly, so the script should also run at least once a week.
 
-**Legal disclaimer: THE INFORMATION IN THIS PUBLICATION IS PROVIDED 'AS-IS.' DELL MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND WITH RESPECT TO THE INFORMATION IN THIS PUBLICATION, AND SPECIFICALLY DISCLAIMS IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.** In no event shall Dell Technologies, its affiliates or suppliers, be liable for any damages whatsoever arising from or related to the information contained herein or actions that you decide to take based thereon, including any direct, indirect, incidental, consequential, loss of business profits or special damages, even if Dell Technologies, its affiliates or suppliers have been advised of the possibility of such damages. 
+## Legal disclaimer:
+ **THE INFORMATION IN THIS PUBLICATION IS PROVIDED 'AS-IS.' DELL MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND WITH RESPECT TO THE INFORMATION IN THIS PUBLICATION, AND SPECIFICALLY DISCLAIMS IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.** In no event shall Dell Technologies, its affiliates or suppliers, be liable for any damages whatsoever arising from or related to the information contained herein or actions that you decide to take based thereon, including any direct, indirect, incidental, consequential, loss of business profits or special damages, even if Dell Technologies, its affiliates or suppliers have been advised of the possibility of such damages. 
+
 
 ## Configuration option of script
 You can make some adjustments in the script to adapt it to your needs.
@@ -62,7 +74,7 @@ The script can be started manually, or it is recommended to start it using tools
 
 ![Snag_bbb928d](https://user-images.githubusercontent.com/99394991/209169501-37c2838f-0234-4f51-8f17-b8fa938fc732.png)
 
-### Running the script to maintain the Irgnore List
+### Running the script to maintain the Ignore List
 
 ![Snag_bbb9193](https://user-images.githubusercontent.com/99394991/209169561-4347759d-e476-46e4-b687-f024dd4d749f.png)
 
