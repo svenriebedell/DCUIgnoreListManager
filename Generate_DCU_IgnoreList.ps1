@@ -46,7 +46,7 @@ Knowing Issues
 ###  Variables Section                                       ###
 ################################################################
 
-# Deffintion of your Update Rings based on Severity Level. Numbers are days.
+# Defintion of your Update Rings based on Severity Level. Numbers are days.
 $RingPolicy = @(
     [PSCustomObject]@{Name="Ring0"; Critical=7; Recommended=14; Optional=60}
     [PSCustomObject]@{Name="Ring1"; Critical=14; Recommended=21; Optional=120}
