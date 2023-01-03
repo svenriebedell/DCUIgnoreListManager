@@ -73,16 +73,17 @@ The script can be started manually, or it is recommended to start it using tools
 
 ### How it looks before the script has run
 
-![Snag_bbb928d](https://user-images.githubusercontent.com/99394991/209169501-37c2838f-0234-4f51-8f17-b8fa938fc732.png)
+<img width="744" alt="MicrosoftTeams-image" src="https://user-images.githubusercontent.com/99394991/210391817-d0508a2f-d7f9-4b45-90a5-6b1d60e9791b.png">
+
 
 ### Running the script to maintain the Ignore List
 
-![Snag_bbb9193](https://user-images.githubusercontent.com/99394991/209169561-4347759d-e476-46e4-b687-f024dd4d749f.png)
+<img width="557" alt="MicrosoftTeams-image (1)" src="https://user-images.githubusercontent.com/99394991/210391881-7186ee9e-ed35-4ef8-a870-c32e433714b9.png">
+
 
 ### Dell Command | Update scan after the script runs.
 
-![Snag_bbb90c7](https://user-images.githubusercontent.com/99394991/209169591-5c20cc9f-e86e-4e2d-9a32-e412341b31dd.png)
-
+<img width="747" alt="MicrosoftTeams-image (2)" src="https://user-images.githubusercontent.com/99394991/210391911-93feb0db-4645-4645-82f2-eba0098a2630.png">
 
 
 
