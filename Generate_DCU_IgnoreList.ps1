@@ -1,7 +1,7 @@
 <#
 _author_ = Sven Riebe <sven_riebe@Dell.com>
 _twitter_ = @SvenRiebe
-_version_ = 1.0.1
+_version_ = 1.0.2
 _Dev_Status_ = Test
 Copyright © 2022 Dell Inc. or its subsidiaries. All Rights Reserved.
 
@@ -64,15 +64,13 @@ $Matchcodelist = @(
 )
 
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https/File://[your storage path]/DellDeviceConfiguration.xlsx'
+$UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
 
 ## Do not change ##
 $DCUProgramName = ".\dcu-cli.exe"
 $DCUPath = (Get-CimInstance -ClassName Win32_Product -Filter "Name like '%Dell%Command%Update%'").InstallLocation
 $IgnoreListPath = "HKLM:\SOFTWARE\DELL\UpdateService\Service\IgnoreList"
 $IgnoreListValue = "InstalledUpdateJson"
-#$DeviceSKU = (Get-CimInstance -ClassName Win32_ComputerSystem).SystemSKUNumber
-#$catalogPath = $env:ProgramData+'\Dell\UpdateService\Temp'
 $DriverAllMissing = New-Object -TypeName psobject
 $DateCurrent = Get-Date
 $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty Name
@@ -178,7 +176,7 @@ function Get-DCU-TimeFilter
                 If ($Driver.Severity -eq "Recommended")
                     {
                         [Datetime]$ReleaseDriver = $Driver.ReleaseDate
-                        [datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Recommended)
+                        [Datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Recommended)
                     }
                 elseif ($Driver.Severity -eq "Critical") 
                     {
