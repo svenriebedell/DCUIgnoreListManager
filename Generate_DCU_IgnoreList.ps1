@@ -66,6 +66,9 @@ $Matchcodelist = @(
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
 $UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
 
+# Temp folder used for some processes all files will be deleted later
+$Temp_Folder = "C:\Temp\"
+
 ## Do not change ##
 $DCUProgramName = ".\dcu-cli.exe"
 $DCUPath = (Get-CimInstance -ClassName Win32_Product -Filter "Name like '%Dell%Command%Update%'").InstallLocation
@@ -74,8 +77,6 @@ $IgnoreListValue = "InstalledUpdateJson"
 $DriverAllMissing = New-Object -TypeName psobject
 $DateCurrent = Get-Date
 $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty Name
-$Temp_Folder = "C:\Temp\"
-
 
 
 
@@ -97,31 +98,31 @@ Function Get-MissingDriver
 
         Set-Location -Path $DCUPath
         # DCU scan only generate a XML report with missing drivers
-        & $DCUProgramName /scan -report="$Temp_Folder"
+        Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -NoNewWindow -Wait 
 
         # Get Catalog file name of Scan Report
         $ReportFileName = Get-ChildItem $Temp_Folder | Where-Object Name -Like "DCUApp*Update*xml" | Select-Object -ExpandProperty Name
 
         # read XML File in a variable
-        [XML]$MissingDriver = Get-Content $Temp_Folder$ReportFileName 
-        
-        # transfer xml driver data´s to Variable Array                       
-        foreach ($item in $MissingDriver) 
+        [XML]$MissingDriver = Get-Content $Temp_Folder$ReportFileName
+
+        $DriverArrayXML = $MissingDriver.updates.update
+
+        foreach ($Driver in $DriverArrayXML) 
             {
                         
             # build a temporary array
             $DriverArrayTemp = New-Object -TypeName psobject
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $item.updates.update.Release
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $item.updates.update.name
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $item.updates.update.urgency
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $item.updates.update.category
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $item.updates.update.date
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $Driver.Release
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Driver.name
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $Driver.urgency
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $Driver.Category
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $Driver.Date
             
-            # Return Array
             $DriverArrayTemp
 
             }
-        
+       
         # Set folder to root
         Set-Location \
 
@@ -293,7 +294,7 @@ if (Get-DCU-Installed - eq $true)
         
         # Assessment drivers get all missing drivers for this device
         $DriverAllMissing = Get-MissingDriver
-        
+
         # get information of Update-Ring for this device from a central stored excel sheet
         [Array]$RingUpdate = get-UpdateRing -DeviceName $Device
 
