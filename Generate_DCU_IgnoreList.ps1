@@ -60,7 +60,7 @@ $RingPolicy = @(
 # This Variable allows you to block specific drivers by match code, e.g. you have on driver you can not deselect by Category or Type without blocking need drivers as well.
 $Matchcodelist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
-    [PSCustomObject]@{MatchCode="Dell*Monitor*"; Listed="19/12/2022"}
+    [PSCustomObject]@{MatchCode="Dell*Configure*"; Listed="19/12/2022"}
 )
 
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
@@ -98,7 +98,7 @@ Function Get-MissingDriver
 
         Set-Location -Path $DCUPath
         # DCU scan only generate a XML report with missing drivers
-        Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -NoNewWindow -Wait 
+        Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -Wait -WindowStyle Hidden
 
         # Get Catalog file name of Scan Report
         $ReportFileName = Get-ChildItem $Temp_Folder | Where-Object Name -Like "DCUApp*Update*xml" | Select-Object -ExpandProperty Name
@@ -233,14 +233,14 @@ function Get-FinalBlockingList
         (
 
         )
-
-
     
+        # Move time blocked driver to final blocking list
+        $TimerList
+
+        # add driver blocked by match code to blocking list if they are not incl as well in time blocked list.
         foreach ($Match in $MatchcodelistDriver)
             {
-                
-                $TimerList
-
+                             
                 If($TimerList.DriverID -notcontains $Match.DriverID)
                     {
 
