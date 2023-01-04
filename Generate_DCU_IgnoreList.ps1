@@ -123,6 +123,9 @@ Function Get-MissingDriver
 
             }
        
+        #Delete temporary report file of dcu from temp folder
+        Remove-Item -Path $Temp_Folder$ReportFileName -Force
+
         # Set folder to root
         Set-Location \
 
