@@ -2,16 +2,12 @@
 
 ### Changelog:
 - 1.0.1 First public version
+- 1.0.2 updating function get-missingdriver (using now XML for datas)
 
-## Description
-Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g., audio or chipset, etc. or type of the update like BIOS (Basic Input Output System) or hardware driver. Furthermore, the severity of a filter can be selected, e.g., Recommended or Critical. 
-However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update.
-One of the biggest challenges today is to patch hardware and software in a way that does not affect the stability of the device. That is why many customers today try a so-called ring deployment of updates. Due to the considerable number  of different installations and devices, however, this is a problem to control in management.
-This experimental project tries to realize this by means of Dell Command | Update.
-Dell Command | Update already offers a variety of control options for update filtering, update frequency, BIOS authentication, etc. 
-What is currently not yet available is to install drivers that are available according to the update catalog for a device only at a certain point in time. You can create groups via different configuration settings to realize a test group, but then everything is always installed in these groups unless it is filtered, or you work with custom catalogs. This project tries to map a concept in the form of rings and severity levels so that all devices have the same update policy but in advance it is determined which drivers should not be installed during an update although an update is available.
-This allows to define up to 8 different update rings which in turn have 3 different severity levels, so that you can define different update delays for Critical, Recommended and Optional drivers.
-The script uses the features provided by Dell Command | Update out of the box. It uses the update scan to identify missing drivers on a device. Then it uses the device update catalog to see when the driver was released. A policy file is used to determine what the update ring policy is for this device. If the driver is allowed to be installed by policy, nothing happens and the Dell Command | Update will update this driver/firmware when starting the update process. If the policy does not allow an update, then this driver is taken on the Ignore list of the Dell Command | Update and this is ignored during the update.
+## Introduction
+This experimental project aims to add Ring Deployment capabilities to Dell Command Update (DCU), by using an Ignore List Manager script.  
+
+In a nutshell this solution scans for available updates and uses the information provided to read out the release date of the updates. Based on the release date and your ring deployment policy settings (Severity level & Days) it will assign the updates to a specific update ring. DCU will only process the updates that match a certain update ring.
 
 **Example:**
 Driver A: Release Date 12/21/2022
@@ -19,11 +15,28 @@ Ring0 / Severity: Critical 7 days
 
 Result: driver can be installed earliest at the 12/28/2022 
 
+## Description
+Dell Command | Update allows you to update your devices automatically. The update can be controlled by filters like category of the driver e.g., audio or chipset, etc. or type of the update like BIOS (Basic Input Output System) or hardware driver. Furthermore, the severity of a filter can be selected, e.g., Recommended or Critical.
+
+However, if you only want to have a certain driver not installed, this is possible by creating your own driver catalog with the **Dell Custom Update Catalog**, where you can select everything as you want it and then use this catalog for the updates. For administrators who do not want to create their own catalogs, the above options remain to filter drivers before the update.
+
+One of the biggest challenges today is to patch hardware and software in a way that does not affect the stability of the device. That is why many customers today try a so-called ring deployment of updates. Due to the considerable number  of different installations and devices, however, this is a problem to control in management.
+
+This experimental project tries to realize this by means of Dell Command | Update.
+Dell Command | Update already offers a variety of control options for update filtering, update frequency, BIOS authentication, etc.
+
+What is currently not yet available is to install drivers that are available according to the update catalog for a device only at a certain point in time. You can create groups via different configuration settings to realize a test group, but then everything is always installed in these groups unless it is filtered, or you work with custom catalogs. This project tries to map a concept in the form of rings and severity levels so that all devices have the same update policy but in advance it is determined which drivers should not be installed during an update although an update is available.
+This allows to define up to 8 different update rings which in turn have 3 different severity levels, so that you can define different update delays for Critical, Recommended and Optional drivers.
+
+The script uses the features provided by Dell Command | Update out of the box. It uses the update scan to identify missing drivers on a device. Then it uses the device update catalog to see when the driver was released. A policy file is used to determine what the update ring policy is for this device. If the driver is allowed to be installed by policy, nothing happens and the Dell Command | Update will update this driver/firmware when starting the update process. If the policy does not allow an update, then this driver is taken on the Ignore list of the Dell Command | Update and this is ignored during the update.
+
 The function is currently external only via this script i.e. to update the Ignore List for drivers this script must be started at regular intervals at least before each update by gangs with Dell Command | Update so that no unwanted drivers are installed or once blocked drivers that are now allowed by policy to be installed by the next Dell Command | Update process are updated.
 
 **Important:** It must be ensured that this script is always started on the device before a Dell Command | Update. Otherwise, unscheduled updates may be performed on the device. The Dell Update Catalog is currently updated weekly, so the script should also run at least once a week.
 
-**Legal disclaimer: THE INFORMATION IN THIS PUBLICATION IS PROVIDED 'AS-IS.' DELL MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND WITH RESPECT TO THE INFORMATION IN THIS PUBLICATION, AND SPECIFICALLY DISCLAIMS IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.** In no event shall Dell Technologies, its affiliates or suppliers, be liable for any damages whatsoever arising from or related to the information contained herein or actions that you decide to take based thereon, including any direct, indirect, incidental, consequential, loss of business profits or special damages, even if Dell Technologies, its affiliates or suppliers have been advised of the possibility of such damages. 
+## Legal disclaimer:
+ **THE INFORMATION IN THIS PUBLICATION IS PROVIDED 'AS-IS.' DELL MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND WITH RESPECT TO THE INFORMATION IN THIS PUBLICATION, AND SPECIFICALLY DISCLAIMS IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.** In no event shall Dell Technologies, its affiliates or suppliers, be liable for any damages whatsoever arising from or related to the information contained herein or actions that you decide to take based thereon, including any direct, indirect, incidental, consequential, loss of business profits or special damages, even if Dell Technologies, its affiliates or suppliers have been advised of the possibility of such damages. 
+
 
 ## Configuration option of script
 You can make some adjustments in the script to adapt it to your needs.
@@ -31,12 +44,13 @@ You can make some adjustments in the script to adapt it to your needs.
 ### Ring definition
 There is a possibility to set up to 8 different update rings (Ring0 to Ring7) for the drivers. Each of these rings can be defined in three severity levels to ensure that urgent updates are handled differently than optional updates.
 
-![image](https://user-images.githubusercontent.com/99394991/209308682-49cd61c4-d91d-4718-a4da-71efd3a920ef.png)
+<img width="677" alt="2023-01-03_15-47-18" src="https://user-images.githubusercontent.com/99394991/210381056-6afc5d12-dfe9-4414-acd2-fc217f9fc797.png">
+
 
 ### Block driver based on name
 There are cases where it is not possible to filter out certain drivers by Type, Category and Severity alone. However, these should never be installed, e.g., certain applications or certain drivers. Here there is the possibility to filter these via match codes from the open updates so that they are not installed. Please **test/check** the match code carefully in advance, so that it does not affect the required/desired drivers later. 
 
-![image](https://user-images.githubusercontent.com/99394991/209308935-d82b2876-ee4b-4d8f-89e5-168274f2e5d1.png)
+<img width="603" alt="2023-01-03_15-51-55" src="https://user-images.githubusercontent.com/99394991/210381965-5383f350-8ab5-40e5-8941-289d0a6eb3ef.png">
 
 ### Path of Assignment file
 For control we use an Excel sheet which is stored centrally in the cloud or on-premises. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN (Virtual Private Network), network or Internet from the devices.
@@ -60,21 +74,22 @@ The script can be started manually, or it is recommended to start it using tools
 
 ### How it looks before the script has run
 
-![Snag_bbb928d](https://user-images.githubusercontent.com/99394991/209169501-37c2838f-0234-4f51-8f17-b8fa938fc732.png)
+<img width="744" alt="MicrosoftTeams-image" src="https://user-images.githubusercontent.com/99394991/210391817-d0508a2f-d7f9-4b45-90a5-6b1d60e9791b.png">
 
-### Running the script to maintain the Irgnore List
 
-![Snag_bbb9193](https://user-images.githubusercontent.com/99394991/209169561-4347759d-e476-46e4-b687-f024dd4d749f.png)
+### Running the script to maintain the Ignore List
+
+<img width="557" alt="MicrosoftTeams-image (1)" src="https://user-images.githubusercontent.com/99394991/210391881-7186ee9e-ed35-4ef8-a870-c32e433714b9.png">
+
 
 ### Dell Command | Update scan after the script runs.
 
-![Snag_bbb90c7](https://user-images.githubusercontent.com/99394991/209169591-5c20cc9f-e86e-4e2d-9a32-e412341b31dd.png)
-
+<img width="747" alt="MicrosoftTeams-image (2)" src="https://user-images.githubusercontent.com/99394991/210391911-93feb0db-4645-4645-82f2-eba0098a2630.png">
 
 
 
 ## Logging
-The script saves the old and the new blocklist as an event in the Microsoft Event. This makes it easy to check changes or troubleshoot why certain updates did not run on the device.
+The script saves the old and the new blocklist as an event in the Microsoft Event Viewer. This makes it easy to check changes or troubleshoot why certain updates did not run on the device.
 
 ### Backup of the existing registry value
 
