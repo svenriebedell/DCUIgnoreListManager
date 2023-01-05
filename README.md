@@ -2,6 +2,7 @@
 
 ### Changelog:
 - 1.0.1 First public version
+- 1.0.2 updating function get-missingdriver (using now XML for datas)
 
 ## Introduction
 This experimental project aims to add Ring Deployment capabilities to Dell Command Update (DCU), by using an Ignore List Manager script.  

@@ -1,7 +1,7 @@
 <#
 _author_ = Sven Riebe <sven_riebe@Dell.com>
 _twitter_ = @SvenRiebe
-_version_ = 1.0.1
+_version_ = 1.0.2
 _Dev_Status_ = Test
 Copyright © 2022 Dell Inc. or its subsidiaries. All Rights Reserved.
 
@@ -23,7 +23,7 @@ limitations under the License.
 1.0.0   inital version
 1.0.1   Clean the registry value before DCU scan starts.
         Blocked drivers are now written as success in the registry value so that the value is not deleted again the next day by dcu. 
-
+1.0.2   reworked function get-missingdrivers move from snipping text to use an temporary xml file.
 
 Knowing Issues
     - Dell Command | Update make a clean of registy on a regular base. This script need to be run on regluar base as well to cover this otherwise drivers could be deployed which normally are blocked.
@@ -60,22 +60,24 @@ $RingPolicy = @(
 # This Variable allows you to block specific drivers by match code, e.g. you have on driver you can not deselect by Category or Type without blocking need drivers as well.
 $Matchcodelist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
-    [PSCustomObject]@{MatchCode="Dell*Monitor*"; Listed="19/12/2022"}
+    [PSCustomObject]@{MatchCode="Dell*Configure*"; Listed="19/12/2022"}
 )
 
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https/File://[your storage path]/DellDeviceConfiguration.xlsx'
+$UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
+
+# Temp folder used for some processes all files will be deleted later
+$Temp_Folder = "C:\Temp\"
 
 ## Do not change ##
 $DCUProgramName = ".\dcu-cli.exe"
 $DCUPath = (Get-CimInstance -ClassName Win32_Product -Filter "Name like '%Dell%Command%Update%'").InstallLocation
 $IgnoreListPath = "HKLM:\SOFTWARE\DELL\UpdateService\Service\IgnoreList"
 $IgnoreListValue = "InstalledUpdateJson"
-$DeviceSKU = (Get-CimInstance -ClassName Win32_ComputerSystem).SystemSKUNumber
-$catalogPath = $env:ProgramData+'\Dell\UpdateService\Temp'
 $DriverAllMissing = New-Object -TypeName psobject
 $DateCurrent = Get-Date
 $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty Name
+
 
 
 ################################################################
@@ -86,45 +88,45 @@ $Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -Expan
 Function Get-MissingDriver
     {
 
-        Set-Location -Path $DCUPath
-        $DCUScanLog = & $DCUProgramName /scan
+        # Test if Temp Path is existing if not generate this Path
+        $check_Temp_Folder = Test-Path -Path $Temp_Folder
 
-        # Spliting text strings in single values in one array
-        $TempVariable = $DCUScanLog | Select-String ("--")
-        $TempVariable = $TempVariable -split ": "
-        $TempVariable = $TempVariable -split " -- "
-        $CountLines = $TempVariable.Count
-        $IndexCounter = 0
-
-        $CatalogFileName = Get-ChildItem $catalogPath | Where-Object Name -Like "*$DeviceSKU*xml" | Select-Object -ExpandProperty Name
-        [XML]$DeviceCatalog = Get-Content $catalogPath\$CatalogFileName
-
-
-                       
-        for ($i = 0; $i -lt $CountLines) 
+        if ($check_Temp_Folder -ne $true) 
             {
-            
-            # Temp Var to get XML Datas from Device Catalog
-            $TempXMLCatalog = ($DeviceCatalog.Manifest.SoftwareComponent)| Where-Object {$_.releaseid -like $TempVariable[0+$IndexCounter]}
-            $ReleaseDate = $TempXMLCatalog.ReleaseDate
-            
+                New-Item -Path $Temp_Folder -ItemType Directory
+            }
+
+        Set-Location -Path $DCUPath
+        # DCU scan only generate a XML report with missing drivers
+        $DCUScanLog = Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -Wait -WindowStyle Hidden
+
+        # Get Catalog file name of Scan Report
+        $ReportFileName = Get-ChildItem $Temp_Folder | Where-Object Name -Like "DCUApp*Update*xml" | Select-Object -ExpandProperty Name
+
+        # read XML File in a variable
+        [XML]$MissingDriver = Get-Content $Temp_Folder$ReportFileName
+
+        $DriverArrayXML = $MissingDriver.updates.update
+
+        foreach ($Driver in $DriverArrayXML) 
+            {
+                        
             # build a temporary array
             $DriverArrayTemp = New-Object -TypeName psobject
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $TempVariable[0+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $TempVariable[1+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $TempVariable[2+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $TempVariable[3+$IndexCounter]
-            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $ReleaseDate
-
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'DriverID' -Value $Driver.Release
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Name' -Value $Driver.name
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Severity' -Value $Driver.urgency
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'Category' -Value $Driver.Category
+            $DriverArrayTemp | Add-Member -MemberType NoteProperty -Name 'ReleaseDate' -Value $Driver.Date
             
             $DriverArrayTemp
-            
-            $IndexCounter += 4
-
-            $i = $i + 4
 
             }
-        
+       
+        #Delete temporary report file of dcu from temp folder
+        Remove-Item -Path $Temp_Folder$ReportFileName -Force
+
+        # Set folder to root
         Set-Location \
 
     }
@@ -178,7 +180,7 @@ function Get-DCU-TimeFilter
                 If ($Driver.Severity -eq "Recommended")
                     {
                         [Datetime]$ReleaseDriver = $Driver.ReleaseDate
-                        [datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Recommended)
+                        [Datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Recommended)
                     }
                 elseif ($Driver.Severity -eq "Critical") 
                     {
@@ -234,14 +236,14 @@ function Get-FinalBlockingList
         (
 
         )
-
-
     
+        # Move time blocked driver to final blocking list
+        $TimerList
+
+        # add driver blocked by match code to blocking list if they are not incl as well in time blocked list.
         foreach ($Match in $MatchcodelistDriver)
             {
-                
-                $TimerList
-
+                             
                 If($TimerList.DriverID -notcontains $Match.DriverID)
                     {
 
@@ -295,7 +297,7 @@ if (Get-DCU-Installed - eq $true)
         
         # Assessment drivers get all missing drivers for this device
         $DriverAllMissing = Get-MissingDriver
-        
+
         # get information of Update-Ring for this device from a central stored excel sheet
         [Array]$RingUpdate = get-UpdateRing -DeviceName $Device
 
