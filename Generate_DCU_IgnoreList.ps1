@@ -98,7 +98,7 @@ Function Get-MissingDriver
 
         Set-Location -Path $DCUPath
         # DCU scan only generate a XML report with missing drivers
-        Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -Wait -WindowStyle Hidden
+        $DCUScanLog = Start-Process -FilePath $DCUProgramName -ArgumentList "/scan -report=$Temp_Folder" -Wait -WindowStyle Hidden
 
         # Get Catalog file name of Scan Report
         $ReportFileName = Get-ChildItem $Temp_Folder | Where-Object Name -Like "DCUApp*Update*xml" | Select-Object -ExpandProperty Name
