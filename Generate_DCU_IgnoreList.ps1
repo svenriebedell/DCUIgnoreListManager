@@ -64,7 +64,7 @@ $Matchcodelist = @(
 )
 
 # You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https://dellconfighub.blob.core.windows.net/configmaster/DellDeviceConfiguration.xlsx'
+$UpdateRing = 'https:/File//"Your File Location"/DellDeviceConfiguration.xlsx'  # need to be change to your file location
 
 # Temp folder used for some processes all files will be deleted later
 $Temp_Folder = "C:\Temp\"
