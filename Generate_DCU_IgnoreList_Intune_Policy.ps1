@@ -1,7 +1,7 @@
 <#
 _author_ = Sven Riebe <sven_riebe@Dell.com>
 _twitter_ = @SvenRiebe
-_version_ = 1.0.2
+_version_ = 1.1.0
 _Dev_Status_ = Develop
 Copyright © 2022 Dell Inc. or its subsidiaries. All Rights Reserved.
 
@@ -24,10 +24,10 @@ limitations under the License.
 1.0.1   Clean the registry value before DCU scan starts.
         Blocked drivers are now written as success in the registry value so that the value is not deleted again the next day by dcu. 
 1.0.2   reworked function get-missingdrivers move from snipping text to use an temporary xml file.
+1.1.0   migrate from excel sheet assignmen to ADMX with Intune policy option
 
 Knowing Issues
     - Dell Command | Update make a clean of registy on a regular base. This script need to be run on regluar base as well to cover this otherwise drivers could be deployed which normally are blocked.
-
 
 #>
 
@@ -36,6 +36,7 @@ Knowing Issues
     This PowerShell starting the Dell Command | Update to identify missing Drivers. After collecting missing drivers reading the Release Date of each driver and compare it with the planned days of delayed deployment (UpdateRings). If a driver is to new for deployment based on your policy the driver will blocked for update. Next time you will run an update with Dell Command | Update this drivers will be ignored.
     IMPORTANT: This script does not reboot the system to apply or query system.
     IMPORTANT: Dell Command | Update need to install first on the devices.
+    IMPORTANT: Provided ADMX template need to import to Intune or Active Directory and assigned to the devices.
 
 .DESCRIPTION
    PowerShell helping to use different Updates Rings with Dell Command | Update. You can configure up to 8 different Rings. This script need to run each time if a new Update Catalog is availible to update the Blocklist as well.
@@ -57,14 +58,18 @@ $RingPolicy = @(
     [PSCustomObject]@{Name="Ring6"; Critical=49; Recommended=56; Optional=180}
     [PSCustomObject]@{Name="Ring7"; Critical=56; Recommended=63; Optional=180}
 )
+
+# will be used if no policy is set by Intune/ADMX
+$RingDefault = "Ring7"
+
 # This Variable allows you to block specific drivers by match code, e.g. you have on driver you can not deselect by Category or Type without blocking need drivers as well.
 $Matchcodelist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
     [PSCustomObject]@{MatchCode="Dell*Configure*"; Listed="19/12/2022"}
 )
 
-# You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https:/File//"Your File Location"/DellDeviceConfiguration.xlsx'  # need to be change to your file location
+<# You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
+$UpdateRing = 'https:/File//"Your File Location"/DellDeviceConfiguration.xlsx'  # need to be change to your file location#>
 
 # Temp folder used for some processes all files will be deleted later
 $Temp_Folder = "C:\Temp\"
@@ -76,7 +81,6 @@ $IgnoreListPath = "HKLM:\SOFTWARE\DELL\UpdateService\Service\IgnoreList"
 $IgnoreListValue = "InstalledUpdateJson"
 $DriverAllMissing = New-Object -TypeName psobject
 $DateCurrent = Get-Date
-$Device = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty Name
 
 
 
@@ -214,19 +218,6 @@ function get-DCU-Ignorelist
 
     }
 
-# Get Update Ring information form the Excel File
-function get-UpdateRing 
-    {
-    param 
-        (
-            [string]$DeviceName
-        )
-    
-    $ExcelData = New-Object -ComObject Excel.Application
-    $ReadFile = $ExcelData.workbooks.open($UpdateRing,0,$true)
-    ($ReadFile.ActiveSheet.UsedRange.Rows | Where-Object {$_.Columns["A"].Value2 -eq $DeviceName}).Value2
-
-    }
 
 # Generate final list of all not allowed driver for a DCU Deployment
 function Get-FinalBlockingList
@@ -277,6 +268,38 @@ function Get-RegistryValue
 
 
     }
+# testing if a specific registry value exit / source by https://www.jonathanmedd.net/2014/02/testing-for-the-presence-of-a-registry-key-and-value.html
+    function Test-RegistryValue 
+        {
+    
+            param 
+            (
+            
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]$Path,
+            
+            [parameter(Mandatory=$true)]
+            [ValidateNotNullOrEmpty()]$Value
+
+            )
+    
+        try 
+            {
+            
+                Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
+                return $true
+
+            }
+        
+        catch
+            {
+            
+            return $false
+            
+            }
+    
+        }    
+    
 
 ################################################################
 ###  Program Section                                         ###
@@ -298,9 +321,22 @@ if (Get-DCU-Installed - eq $true)
         # Assessment drivers get all missing drivers for this device
         $DriverAllMissing = Get-MissingDriver
 
-        # get information of Update-Ring for this device from a central stored excel sheet
-        [Array]$RingUpdate = get-UpdateRing -DeviceName $Device
+        # get information of Update-Ring for this device from Intune policy by ADMX
+        $CheckRingValue = Test-RegistryValue -Path HKLM:\SOFTWARE\Dell\DellConfigHub\DellCommandUpdate -Value UpdatePolicy
 
+        If ($CheckRingValue -eq $true)
+            {
+                Write-Host "Policy is set on this machine"
+                $RingUpdate = Get-ItemPropertyValue HKLM:\SOFTWARE\Dell\DellConfigHub\DellCommandUpdate -Name UpdatePolicy
+                Write-Host "Policy is $RingUpdate"
+            }
+        else
+            {
+                Write-Host "Policy is not set on this machine it will be used the default update ring"
+                $RingUpdate = $RingDefault
+                Write-Host "Policy is $RingUpdate"
+            }
+        
         # get drivers who are match to the match code listed driver in $Matchcodelist
         [Array]$MatchcodelistDriver = remove-DCU-MatchcodelistDriver
         
@@ -318,11 +354,12 @@ if (Get-DCU-Installed - eq $true)
         # Set blocking list to registry
         Set-ItemProperty -path $IgnoreListPath -Name $IgnoreListValue -Value $RegValueJSON -Force
 
-        # Log results of old Registry Value and New Registry Value
+        # Log results of old Registry Value and New Registry Value and used Update Ring
         # Generate LogName and Source
         New-EventLog -LogName 'Dell' -Source 'DCURegValue' -ErrorAction Ignore
         New-EventLog -LogName 'Dell' -Source 'DCUBlocklist' -ErrorAction Ignore
         New-EventLog -LogName 'Dell' -Source 'DCUBlocklistScriptResult' -ErrorAction Ignore
+        New-EventLog -LogName 'Dell' -Source 'DCUUpdateRing' -ErrorAction Ignore
 
         # writting blocklists (Old/New) to Microsoft Event if value not empty
         If($null -ne $IgnoreListCurrentJSON)
@@ -339,6 +376,9 @@ if (Get-DCU-Installed - eq $true)
         
         # Write success to event log registry is set new
         Write-EventLog -LogName Dell -Source DCUBlocklistScriptResult -EntryType SuccessAudit -EventId 0 -Message "Script was run and set new registry value to this machine" -ErrorAction SilentlyContinue
+        
+        # write used Update Ring to Event
+        Write-EventLog -LogName Dell -Source DCUUpdateRing -EntryType Information -EventId 0 -Message "update ring used was: $RingUpdate " -ErrorAction SilentlyContinue
         
         ## Service need to restart to read the new registry value
         restart-Service -Name DellClientManagementService -Force
