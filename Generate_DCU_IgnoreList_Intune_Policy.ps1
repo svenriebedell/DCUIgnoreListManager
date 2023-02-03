@@ -66,10 +66,8 @@ $RingDefault = "Ring7"
 $Matchcodelist = @(
     [PSCustomObject]@{MatchCode="Dell*Update*"; Listed="15/12/2022"}
     [PSCustomObject]@{MatchCode="Dell*Configure*"; Listed="19/12/2022"}
+    [PSCustomObject]@{MatchCode="Dell SupportAssist OS Recovery*"; Listed="03/02/2023"}
 )
-
-<# You need to define the location of you Excel Sheet where the script could be find the assignments of Device-Name to Update-Ring
-$UpdateRing = 'https:/File//"Your File Location"/DellDeviceConfiguration.xlsx'  # need to be change to your file location#>
 
 # Temp folder used for some processes all files will be deleted later
 $Temp_Folder = "C:\Temp\"
@@ -169,7 +167,7 @@ function remove-DCU-MatchcodelistDriver
     }
 
 # Select Driver based on DCU Scan where Timer do not allow an update by DCU
-function Get-DCU-TimeFilter 
+function Get-DCU-TimeFilter
     {
         param
             (
@@ -186,7 +184,7 @@ function Get-DCU-TimeFilter
                         [Datetime]$ReleaseDriver = $Driver.ReleaseDate
                         [Datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Recommended)
                     }
-                elseif ($Driver.Severity -eq "Critical") 
+                elseif ($Driver.Severity -eq "Urgent") 
                     {
                         [Datetime]$ReleaseDriver = $Driver.ReleaseDate
                         [datetime]$DeployDate = $ReleaseDriver.AddDays($DriverTime.Critical)
@@ -341,7 +339,7 @@ if (Get-DCU-Installed - eq $true)
         [Array]$MatchcodelistDriver = remove-DCU-MatchcodelistDriver
         
         # get a list of drivers who are missing on the device but based on update ring the drivers are newer than update policy allows
-        [Array]$TimerList = Get-DCU-TimeFilter -DriverRing $RingUpdate[1]
+        [Array]$TimerList = Get-DCU-TimeFilter -DriverRing $RingUpdate
         
         # Merge the lists filter by update timer and matchcodelist match code to one list.
         [Array]$FinalBlockingList = Get-FinalBlockingList
@@ -396,3 +394,4 @@ else
         Exit 2
 
     }
+exit 0
