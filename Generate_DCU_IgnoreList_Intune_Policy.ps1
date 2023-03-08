@@ -24,7 +24,7 @@ limitations under the License.
 1.0.1   Clean the registry value before DCU scan starts.
         Blocked drivers are now written as success in the registry value so that the value is not deleted again the next day by dcu. 
 1.0.2   reworked function get-missingdrivers move from snipping text to use an temporary xml file.
-1.1.0   migrate from excel sheet assignmen to ADMX with Intune policy option
+1.1.0   migrate from excel sheet assignment to ADMX with Intune policy option
 
 Knowing Issues
     - Dell Command | Update make a clean of registy on a regular base. This script need to be run on regluar base as well to cover this otherwise drivers could be deployed which normally are blocked.
