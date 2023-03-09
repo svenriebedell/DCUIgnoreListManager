@@ -58,21 +58,30 @@ The idea is to solve the management of the update rings via Intune configuration
 
 ### Import ADMX
 Before you can get started, you need to download the ADMX and then import it into Intune. Then you can use the ADMX to set a configuration profile on the device.
+![image](https://user-images.githubusercontent.com/99394991/224032390-26ee31c3-1256-4615-9eb6-853b2860eae9.png)
+
 
 **ADMX is part of this repository**
+![image](https://user-images.githubusercontent.com/99394991/224032155-f8991b15-3b46-4e08-a3ef-eab561ba5e04.png)
 
 
 ### Start with the configuartion Profile
 The configuration profile in Intune allows to set or change settings on the device. To be able to do this, a new profile must be created and the option "Imported Administrative Templates" must be selected.
 
+
 #### select Imported Administrative Templates
+![image](https://user-images.githubusercontent.com/99394991/224032508-37397b2b-4615-4245-8c12-9b4d6327e926.png)
 
 
 #### Prepare the policy
-
+![image](https://user-images.githubusercontent.com/99394991/224032578-a549befb-4fe5-46f5-b170-1bba8fd520f5.png)
+![image](https://user-images.githubusercontent.com/99394991/224032625-40d899df-95ec-4358-8af5-ac7829784fe0.png)
+![image](https://user-images.githubusercontent.com/99394991/224032663-d997434c-7160-4fc6-b6b0-9b7b79c14f36.png)
+![image](https://user-images.githubusercontent.com/99394991/224032727-531e61c0-8948-418a-be2d-bececaa66a0a.png)
 
 
 #### Assign Configuration Policy to a AAD Group
+![image](https://user-images.githubusercontent.com/99394991/224032785-172e763f-d788-4b21-9695-7e26cbfe7a48.png)
 
 
 ## Execution of script
