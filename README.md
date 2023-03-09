@@ -70,17 +70,21 @@ The configuration profile in Intune allows to set or change settings on the devi
 
 
 #### select Imported Administrative Templates
+
 ![image](https://user-images.githubusercontent.com/99394991/224032508-37397b2b-4615-4245-8c12-9b4d6327e926.png)
 
 
 #### Prepare the policy
+
 ![image](https://user-images.githubusercontent.com/99394991/224032578-a549befb-4fe5-46f5-b170-1bba8fd520f5.png)
 ![image](https://user-images.githubusercontent.com/99394991/224032625-40d899df-95ec-4358-8af5-ac7829784fe0.png)
 ![image](https://user-images.githubusercontent.com/99394991/224032663-d997434c-7160-4fc6-b6b0-9b7b79c14f36.png)
-![image](https://user-images.githubusercontent.com/99394991/224032727-531e61c0-8948-418a-be2d-bececaa66a0a.png)
+![image](https://user-images.githubusercontent.com/99394991/224033108-1f725727-9ffb-44a1-82e6-e19b1127815e.png)
+
 
 
 #### Assign Configuration Policy to a AAD Group
+
 ![image](https://user-images.githubusercontent.com/99394991/224032785-172e763f-d788-4b21-9695-7e26cbfe7a48.png)
 
 
