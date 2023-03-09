@@ -1,5 +1,7 @@
 # Dell Command | Update - Ignore List Manager
 
+Lastes Version 1.1.0
+
 ### Changelog:
 - 1.0.1 First public version
 - 1.0.2 updating function get-missingdriver (using now XML for datas)
