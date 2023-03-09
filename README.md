@@ -3,6 +3,7 @@
 ### Changelog:
 - 1.0.1 First public version
 - 1.0.2 updating function get-missingdriver (using now XML for datas)
+- 1.1.0 migrating policy assignment form excel sheet to ADMX Policy file
 
 ## Introduction
 This experimental project aims to add Ring Deployment capabilities to Dell Command Update (DCU), by using an Ignore List Manager script.  
@@ -42,7 +43,7 @@ The function is currently external only via this script i.e. to update the Ignor
 You can make some adjustments in the script to adapt it to your needs.
 
 ### Ring definition
-There is a possibility to set up to 8 different update rings (Ring0 to Ring7) for the drivers. Each of these rings can be defined in three severity levels to ensure that urgent updates are handled differently than optional updates.
+There is a possibility to set up to 8 different update rings (Ring0 to Ring7) for the drivers. Each of these rings can be defined in three severity levels to ensure that urgent updates are handled differently than optional updates. The time you will find in this pictures are examples you need to change to your company requirements.
 
 <img width="677" alt="2023-01-03_15-47-18" src="https://user-images.githubusercontent.com/99394991/210381056-6afc5d12-dfe9-4414-acd2-fc217f9fc797.png">
 
@@ -52,19 +53,26 @@ There are cases where it is not possible to filter out certain drivers by Type, 
 
 <img width="603" alt="2023-01-03_15-51-55" src="https://user-images.githubusercontent.com/99394991/210381965-5383f350-8ab5-40e5-8941-289d0a6eb3ef.png">
 
-### Path of Assignment file
-For control we use an Excel sheet which is stored centrally in the cloud or on-premises. This Excel sheet defines which device belongs to which update ring. This sheet must be accessible via VPN (Virtual Private Network), network or Internet from the devices.
-You should set the path where the file **DellDeviceConfiguration.xlsx** will be saved. For my environment I use Azure storage for this, but you can also use File Shares or e.g., OneDrive's, etc. here. The only important thing is that the device has access to the file.
+### Working with the ADMX Policy file
+The idea is to solve the management of the update rings via Intune configuration profiles. Since December 2022 Intune supports the import of 3rd party ADMX templates (Preview). Since ADMX is already used for many years for the configuration of devices, we adopt this technology in Intune. This allows us to assign update rings directly from Intune per groups to users or devices.
 
-![image](https://user-images.githubusercontent.com/99394991/209308621-c661aa19-dcf8-4771-a2f9-963f1c7acde6.png)
+### Import ADMX
+Before you can get started, you need to download the ADMX and then import it into Intune. Then you can use the ADMX to set a configuration profile on the device.
 
-### Assignment file
-In the file DellDeviceConfiguration.xlsx the assignment of the device name to the update ring is defined. The file must contain the required device names, otherwise the device has no assignment. 
+**ADMX is part of this repository**
 
-**Note:** in a later version there will be a default setting if the device name is not found.
 
-![image](https://user-images.githubusercontent.com/99394991/209309693-f8ac9d34-3677-4d26-90e7-c071797c68a8.png)
-![image](https://user-images.githubusercontent.com/99394991/209318844-6055c0c8-90df-4bf5-9139-5f0ab8c760db.png)
+### Start with the configuartion Profile
+The configuration profile in Intune allows to set or change settings on the device. To be able to do this, a new profile must be created and the option "Imported Administrative Templates" must be selected.
+
+#### select Imported Administrative Templates
+
+
+#### Prepare the policy
+
+
+
+#### Assign Configuration Policy to a AAD Group
 
 
 ## Execution of script
