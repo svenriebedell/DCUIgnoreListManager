@@ -1,6 +1,6 @@
 # Dell Command | Update - Ignore List Manager
 
-Lastes Version 1.1.1  (3/23/2023)
+Lastes Version 1.1.2  (3/24/2023)
 
 ### Changelog:
 - 1.0.1 First public version
@@ -8,6 +8,7 @@ Lastes Version 1.1.1  (3/23/2023)
 - 1.1.0 migrating policy assignment form excel sheet to ADMX Policy file
 - 1.1.1 correction failure if Registry of IgnoreList is failing
         correction failure if Registry of Policy is not availiable (Path)
+- 1.1.2 correction of missing Values in InstalledUpateJSON Registry.
 
 ## Introduction
 This experimental project aims to add Ring Deployment capabilities to Dell Command Update (DCU), by using an Ignore List Manager script.  
