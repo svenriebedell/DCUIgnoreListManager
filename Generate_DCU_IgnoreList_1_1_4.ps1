@@ -273,7 +273,7 @@ function Get-RegistryValue
                 $TempArray | Add-Member NoteProperty -Name Id -Value $Block.DriverID
                 $TempArray | Add-Member NoteProperty -Name IsSuccessful -Value $true
                 $TempArray | Add-Member NoteProperty -Name ReturnCode -Value 0
-                $TempArray | Add-Member NoteProperty -Name Timer -Value $JsonDate
+                $TempArray | Add-Member NoteProperty -Name Time -Value $JsonDate
 
                 $TempArray
 
