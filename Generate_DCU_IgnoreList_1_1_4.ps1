@@ -83,6 +83,7 @@ $DCUPath = (Get-CimInstance -ClassName Win32_Product -Filter "Name like '%Dell%C
 $IgnoreListPath = "HKLM:\SOFTWARE\DELL\UpdateService\Service\IgnoreList"
 $IgnoreListValue = "InstalledUpdateJson"
 $DriverAllMissing = New-Object -TypeName psobject
+$DateCurrent = Get-Date
 
 
 
