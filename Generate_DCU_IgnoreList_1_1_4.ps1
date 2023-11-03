@@ -29,7 +29,7 @@ limitations under the License.
         Correcting failure with default ring setting if Policy setting is missing.
 1.1.2   In some device setups the convert-to-json is missing [] to add. New function Switch-JSON will check and correct JSON Format
 1.1.3   Add control check of change in function Switch-JSON to check if the correction works correctly
-1.1.4   correction of time format for the registry entry
+1.1.4   correction of time format for the registry entry and field name "Timer" to "Time"
 
 Knowing Issues
     - Dell Command | Update make a clean of registy on a regular base. This script need to be run on regluar base as well to cover this otherwise drivers could be deployed which normally are blocked.
